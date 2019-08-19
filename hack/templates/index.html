@@ -1,0 +1,200 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>#HackWithInfy</title>
+
+
+    <script href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+    <style>
+.slidecontainer {
+  width: 100%;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 23px;
+  height: 24px;
+  border: 0;
+  background: url('contrasticon.png');
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 23px;
+  height: 24px;
+  border: 0;
+  background: url('contrasticon.png');
+  cursor: pointer;
+}
+
+</style>
+
+
+</head>
+<body >
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+
+    <div style="text-align: center">
+
+        <a class="navbar-brand" href="#">#HackWithInfy</a>
+
+    </div>
+
+</nav>
+
+<div class="container">
+    <div class="container pt-3">
+        <div class="container mx-5">
+            <div class="container mx-5">
+
+                <div class="row pt-3 mx-5">
+
+                    <form>
+                        <div class="container mx-5" style="width: 250px">
+                            <div class="container mx-5">
+                                <label for="formControlRange">Upper Bound</label>
+                            </div>
+
+                            <input type="range" min="0" max="65536" value="0" class="form-control-range" id="myRange">
+                            <p>Value: <span id="demo"></span></p>
+
+                        </div>
+
+
+                    </form>
+
+                    <form>
+                        <div class="container mx-5" style="width: 250px">
+                            <div class="container mx-5">
+                                <label for="formControlRange">Lower Bound</label>
+                            </div>
+                            <input type="range"  min="0" max="65536" value="0" class="form-control-range" id="myRange1">
+
+                            <p>Value: <span id="demo2"></span></p>
+
+                        </div>
+                    </form>
+                    <div class="mx-3 my-3">
+
+                        <button type="button" class="btn btn-primary"onclick="process()" >Process</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <canvas id="myChart" ></canvas>
+</div>
+
+
+<script>
+var slider = document.getElementById("myRange");
+var slider1 = document.getElementById("myRange1");
+var output = document.getElementById("demo");
+var output2 = document.getElementById("demo2");
+output.innerHTML = slider.value;
+output2.innerHTML = slider1.value;
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+slider1.oninput = function() {
+  output2.innerHTML = this.value;
+  }
+ var ds=new Array();
+
+function process(){
+
+
+
+  //const url='url?upper_threshold='+document.getElementById("myRange").value+'&lower_threshold='+document.getElementById("myRange1").value;
+    const url = 'http://0.0.0.0:8080/process';
+
+
+  console.log(url);
+
+
+  fetch(url)
+  .then((resp)=>resp.json())
+  .then(function(data){
+
+      console.log(data);
+      for(var i=0;i<data["abnormal_frames"].length;i++)
+      {
+        //console.log(i);
+        var x = {"x" : data["abnormal_frames"][i][0],"y" : data["abnormal_frames"][i][1],"r":3 };
+        console.log(x);
+        ds.push(x);
+       }
+
+      console.log(ds);
+       var ctx = document.getElementById('myChart').getContext('2d');
+      var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'bubble',
+
+        // The data for our dataset
+        data: {
+
+            datasets: [{
+                label: 'ABNORMALITIES',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+
+                data:ds,
+            }]
+        },
+        options: {}
+      })
+    })
+}
+
+
+
+
+
+</script>
+
+
+
+
+
+
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
+</html>
